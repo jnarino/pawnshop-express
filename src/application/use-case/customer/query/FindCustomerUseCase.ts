@@ -1,7 +1,7 @@
 import { CustomerRepository } from '../../../../domains/customer/CustomerRepository';
 import { CustomerSummaryDto } from '../../../dto/customer/query/CustomerResponseDto';
 import { FindCustomerRequestDto, findCustomerRequestSchema } from '../../../dto/customer/query/FindCustomerRequestDto';
-import { toCustomerSummaryDto } from '../../../mapping/customer/customerMapper';
+import { toCustomerResponseDto, toCustomerSummaryDto } from '../../../mapping/customer/customerMapper';
 
 
 function parseDateOrNull(value?: string): Date | null {
@@ -29,6 +29,6 @@ export class FindCustomerUseCase {
         };
 
         const customers = await this.customerRepo.findCustomer(criteria);
-        return customers.map(toCustomerSummaryDto);
+        return customers.map(toCustomerResponseDto);
     }
 }
