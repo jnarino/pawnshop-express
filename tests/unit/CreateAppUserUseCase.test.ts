@@ -1,7 +1,8 @@
-import { CreateAppUserUseCase } from '../../src/application/use-case/appUser/CreateAppUserUseCase';
+
 import { AppUserRepository } from '../../src/domains/appUser/AppUserRepository';
 import { AppUser } from '../../src/domains/appUser/AppUser';
 import { ForbiddenError } from '../../src/application/common/errors';
+import { CreateAppUserUseCase } from '../../src/application/use-case/appUser/command/CreateAppUserUseCase';
 
 class mockRepo implements AppUserRepository {
   findByUsername = jest.fn();

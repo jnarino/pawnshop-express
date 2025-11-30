@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import * as argon2 from 'argon2';
 import crypto from 'crypto';
 import { AppUserRepository } from '../../domains/appUser/AppUserRepository';
-import { AppUserSessionRepository } from '../../infrastructure/persistence/AppUserSessionRepository';
+import { AppUserSessionRepository } from '../../infrastructure/persistence/session/AppUserSessionRepository';
 import { AppUserSession } from '../../domains/auth/AppUserSession';
 import { LoginResponseDto } from '../dto/auth/LoginDto';
 import { RefreshTokenResponseDto } from '../dto/auth/RefreshTokenDto';
