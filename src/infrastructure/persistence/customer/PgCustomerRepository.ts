@@ -23,6 +23,16 @@ const sqlFindByDobLastNameFirstName = loadSql(
     'queries',
     'customer/customer_find_by_dob_last_name_first_name'
 );
+const sqlFindByIdDocument = loadSql(
+    'queries',
+    'customer/customer_find_by_id_document'
+);
+
+function toPgDate(value: Date | null): string | null {
+    if (!value) return null;
+    // Take only the date portion so Postgres doesn't try to convert timezone
+    return value.toISOString().slice(0, 10); // "YYYY-MM-DD"
+}
 
 export class PgCustomerRepository implements CustomerRepository {
     constructor(private readonly pool: Pool) { }
@@ -53,14 +63,14 @@ export class PgCustomerRepository implements CustomerRepository {
             customer.race,                 // 16
             customer.sex,                  // 17
             customer.marks,                // 18
-            customer.dateOfBirth,          // 19
+            toPgDate(customer.dateOfBirth),          // 19
             customer.birthCity,            // 20
             customer.birthState,           // 21
             customer.birthCountry,         // 22
             customer.idType,               // 23
             customer.idNumber,             // 24
-            customer.idExpiration,         // 25
-            customer.idIssueDate,          // 26
+            toPgDate(customer.idExpiration),         // 25
+            toPgDate(customer.idIssueDate),          // 26
             customer.ssNumber,             // 27
             customer.idAddress,            // 28
             customer.idSuiteNumber,        // 29
@@ -82,7 +92,7 @@ export class PgCustomerRepository implements CustomerRepository {
             customer.email,                // 45
             customer.enteredAt,            // 46
             customer.military,             // 47
-            customer.fflExpireDate,        // 48
+            toPgDate(customer.fflExpireDate),        // 48
             customer.taxExempt,            // 49
             customer.taxExemptCertificate  // 50
         ]);
@@ -111,14 +121,14 @@ export class PgCustomerRepository implements CustomerRepository {
             customer.race,                 // 17
             customer.sex,                  // 18
             customer.marks,                // 19
-            customer.dateOfBirth,          // 20
+            toPgDate(customer.dateOfBirth),          // 20
             customer.birthCity,            // 21
             customer.birthState,           // 22
             customer.birthCountry,         // 23
             customer.idType,               // 24
             customer.idNumber,             // 25
-            customer.idExpiration,         // 26
-            customer.idIssueDate,          // 27
+            toPgDate(customer.idExpiration),         // 26
+            toPgDate(customer.idIssueDate),          // 27
             customer.ssNumber,             // 28
             customer.idAddress,            // 29
             customer.idSuiteNumber,        // 30
@@ -140,7 +150,7 @@ export class PgCustomerRepository implements CustomerRepository {
             customer.email,                // 46
             customer.enteredAt,            // 47
             customer.military,             // 48
-            customer.fflExpireDate,        // 49
+            toPgDate(customer.fflExpireDate),        // 49
             customer.taxExempt,            // 50
             customer.taxExemptCertificate  // 51
         ]);
@@ -161,17 +171,24 @@ export class PgCustomerRepository implements CustomerRepository {
         const hasLast = !!criteria.lastName;
         const hasFirst = !!criteria.firstName;
 
+        const hasIdNumber = !!criteria.idNumber;
+        const hasIdType = !!criteria.idType;
+        const hasIdState = !!criteria.idState;
+
         let sql: string;
         let params: any[];
 
-        if (hasDob && !hasLast && !hasFirst) {
+        if (hasIdNumber && hasIdType && hasIdState) {
+            sql = sqlFindByIdDocument;
+            params = [criteria.idType, criteria.idNumber, criteria.idState];
+        } else if (hasDob && !hasLast && !hasFirst) {
             // date_of_birth only
             sql = sqlFindByDob;
-            params = [criteria.dateOfBirth];
+            params = [toPgDate(criteria.dateOfBirth ?? null)];
         } else if (hasDob && hasLast && !hasFirst) {
             // date_of_birth + last_name
             sql = sqlFindByDobLastName;
-            params = [criteria.dateOfBirth, criteria.lastName];
+            params = [toPgDate(criteria.dateOfBirth ?? null), criteria.lastName];
         } else if (!hasDob && hasLast && !hasFirst) {
             // last_name only
             sql = sqlFindByLastName;
@@ -183,7 +200,7 @@ export class PgCustomerRepository implements CustomerRepository {
         } else if (hasDob && hasLast && hasFirst) {
             // date_of_birth + last_name + first_name
             sql = sqlFindByDobLastNameFirstName;
-            params = [criteria.dateOfBirth, criteria.lastName, criteria.firstName];
+            params = [toPgDate(criteria.dateOfBirth ?? null), criteria.lastName, criteria.firstName];
         } else {
             throw new Error('Invalid findCustomer criteria combination');
         }

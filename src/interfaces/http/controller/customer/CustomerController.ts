@@ -17,24 +17,17 @@ export class CustomerController {
         private readonly getCustomerByIdUseCase: GetCustomerByIdUseCase
     ) { }
 
-    /**
-     * Search customers by:
-     * - DOB
-     * - DOB + lastName
-     * - lastName
-     * - lastName + firstName
-     * - DOB + lastName + firstName
-     *
-     * GET /api/customers/search?lastName=...&firstName=...&dateOfBirth=YYYY-MM-DD
-     */
     search = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         try {
-            const { firstName, lastName, dateOfBirth } = req.query;
+            const { firstName, lastName, dateOfBirth, idType, idNumber, idState } = req.query;
 
             const input = {
                 firstName: typeof firstName === 'string' ? firstName : undefined,
                 lastName: typeof lastName === 'string' ? lastName : undefined,
-                dateOfBirth: typeof dateOfBirth === 'string' ? dateOfBirth : undefined
+                dateOfBirth: typeof dateOfBirth === 'string' ? dateOfBirth : undefined,
+                idType: typeof idType === 'string' ? idType : undefined,
+                idNumber: typeof idNumber === 'string' ? idNumber : undefined,
+                idState: typeof idState === 'string' ? idState : undefined
             };
 
             const result = await this.findCustomerUseCase.execute(input);

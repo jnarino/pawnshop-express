@@ -17,10 +17,15 @@ export class FindCustomerUseCase {
         const dto: FindCustomerRequestDto = findCustomerRequestSchema.parse(input);
 
         const dob = parseDateOrNull(dto.dateOfBirth);
+
+
         const criteria = {
             firstName: dto.firstName,
             lastName: dto.lastName,
-            dateOfBirth: dob === null ? undefined : dob
+            dateOfBirth: dob === null ? undefined : dob,
+            idType: dto.idType,
+            idNumber: dto.idNumber,
+            idState: dto.idState
         };
 
         const customers = await this.customerRepo.findCustomer(criteria);

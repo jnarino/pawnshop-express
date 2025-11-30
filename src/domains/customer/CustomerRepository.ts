@@ -4,6 +4,11 @@ export type FindCustomerCriteria = {
   firstName?: string;
   lastName?: string;
   dateOfBirth?: Date;
+
+  // NEW: search by ID document
+  idType?: string;
+  idNumber?: string;
+  idState?: string;
 };
 
 export interface CustomerRepository {
