@@ -11,6 +11,8 @@ export function createCustomerRouter(
     const router = Router();
     const auth = authenticate(jwtSecret);
 
+    router.get('/', auth, controller.search);
+
     // Search (grid)
     router.get('/search', auth, controller.search);
 
