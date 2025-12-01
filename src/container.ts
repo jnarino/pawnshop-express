@@ -20,6 +20,14 @@ import { createExpressApp } from './interfaces/http';
 import { AppUserController } from './interfaces/http/controller/appUser/AppUserController';
 import { AuthController } from './interfaces/http/controller/auth/AuthController';
 import { CustomerController } from './interfaces/http/controller/customer/CustomerController';
+import { PgInventoryItemRepository } from './infrastructure/persistence/inventory/PgInventoryItemRepository';
+import { GetInventoryItemBySerialNumberUseCase } from './application/use-case/inventory/query/GetInventoryItemBySerialNumberUseCase';
+import { CreateInventoryItemUseCase } from './application/use-case/inventory/command/CreateInventoryItemUseCase';
+import { DeleteInventoryItemUseCase } from './application/use-case/inventory/command/DeleteInventoryItemUseCase';
+import { UpdateInventoryItemUseCase } from './application/use-case/inventory/command/UpdateInventoryItemUseCase';
+import { GetInventoryItemByIdUseCase } from './application/use-case/inventory/query/GetInventoryItemByIdUseCase';
+import { GetInventoryItemByInventoryNumberUseCase } from './application/use-case/inventory/query/GetInventoryItemByInventoryNumberUseCase';
+import { InventoryItemController } from './interfaces/http/controller/inventory/InventoryItemController';
 
 
 
@@ -30,6 +38,7 @@ export async function createApp() {
   const appUserRepo = new PgAppUserRepository(pool);
   const sessionRepo = new AppUserSessionRepository(pool);
   const customerRepo = new PgCustomerRepository(pool);
+  const inventoryItemRepo = new PgInventoryItemRepository(pool);
 
   // Services
   const authService = new AuthService(appUserRepo, sessionRepo, env.jwtSecret);
@@ -51,6 +60,14 @@ export async function createApp() {
   const deleteCustomerUseCase = new DeleteCustomerUseCase(customerRepo);
   const findCustomerUseCase = new FindCustomerUseCase(customerRepo);
   const getCustomerByIdUseCase = new GetCustomerByIdUseCase(customerRepo);
+
+  // Inventory Item use-cases
+  const createInventoryItemUseCase = new CreateInventoryItemUseCase(inventoryItemRepo);
+  const updateInventoryItemUseCase = new UpdateInventoryItemUseCase(inventoryItemRepo);
+  const deleteInventoryItemUseCase = new DeleteInventoryItemUseCase(inventoryItemRepo);
+  const getInventoryItemByIdUseCase = new GetInventoryItemByIdUseCase(inventoryItemRepo);
+  const getInventoryItemByInventoryNumberUseCase = new GetInventoryItemByInventoryNumberUseCase(inventoryItemRepo);
+  const getInventoryItemBySerialNumberUseCase = new GetInventoryItemBySerialNumberUseCase(inventoryItemRepo);
 
   // Controllers
   const authController = new AuthController(
@@ -74,10 +91,20 @@ export async function createApp() {
     getCustomerByIdUseCase
   );
 
+  const inventoryItemController = new InventoryItemController(
+    createInventoryItemUseCase,
+    updateInventoryItemUseCase,
+    deleteInventoryItemUseCase,
+    getInventoryItemByIdUseCase,
+    getInventoryItemByInventoryNumberUseCase,
+    getInventoryItemBySerialNumberUseCase
+  );
+
   const app = createExpressApp({
     authController,
     appUserController,
     customerController,
+    inventoryItemController,
     jwtSecret: env.jwtSecret
   });
 

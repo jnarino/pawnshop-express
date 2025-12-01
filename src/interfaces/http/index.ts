@@ -9,6 +9,8 @@ import { errorMiddleware } from './middleware/errorMiddleware';
 import { healthRouter } from './route/healthRoute';
 import { createCustomerRouter } from './route/customer/customerRoute';
 import { CustomerController } from './controller/customer/CustomerController';
+import { InventoryItemController } from './controller/inventory/InventoryItemController';
+import { createInventoryItemRouter } from './route/inventory/inventoryItemRoutes';
 
 export function createExpressApp(
   deps: {
@@ -16,6 +18,7 @@ export function createExpressApp(
     appUserController: AppUserController;
     jwtSecret: string;
     customerController: CustomerController;
+    inventoryItemController: InventoryItemController;
   }
 ) {
   const app = express();
@@ -27,6 +30,7 @@ export function createExpressApp(
   app.use('/api/auth', createAuthRouter(deps.authController));
   app.use('/api/app-users', createAppUserRouter(deps.appUserController, deps.jwtSecret));
   app.use('/api/customer', createCustomerRouter(deps.customerController, deps.jwtSecret));
+  app.use('/api/inventory-items', createInventoryItemRouter(deps.inventoryItemController, deps.jwtSecret));
 
 
   app.use(errorMiddleware);
