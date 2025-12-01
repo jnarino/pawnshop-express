@@ -20,7 +20,7 @@ function mapRowToInventoryCategory(row: any): InventoryCategory {
         code: row.code,
         parentId: row.parent_id ?? null,
         path: row.path ?? null,
-        depth: row.depth ?? 0
+        depth: row.depth
     });
 }
 
