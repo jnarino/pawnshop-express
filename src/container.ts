@@ -28,6 +28,10 @@ import { UpdateInventoryItemUseCase } from './application/use-case/inventory/com
 import { GetInventoryItemByIdUseCase } from './application/use-case/inventory/query/GetInventoryItemByIdUseCase';
 import { GetInventoryItemByInventoryNumberUseCase } from './application/use-case/inventory/query/GetInventoryItemByInventoryNumberUseCase';
 import { InventoryItemController } from './interfaces/http/controller/inventory/InventoryItemController';
+import { PgInventoryCategoryRepository } from './infrastructure/persistence/inventory/PgInventoryCategoryRepository';
+import { CreateInventoryCategoryUseCase } from './application/use-case/inventory/command/CreateInventoryCategoryUseCase';
+import { GetInventoryCategoryTreeUseCase } from './application/use-case/inventory/query/GetInventoryCategoryTreeUseCase';
+import { InventoryCategoryController } from './interfaces/http/controller/inventory/InventoryCategoryController';
 
 
 
@@ -39,6 +43,7 @@ export async function createApp() {
   const sessionRepo = new AppUserSessionRepository(pool);
   const customerRepo = new PgCustomerRepository(pool);
   const inventoryItemRepo = new PgInventoryItemRepository(pool);
+  const inventoryCategoryRepo = new PgInventoryCategoryRepository(pool);
 
   // Services
   const authService = new AuthService(appUserRepo, sessionRepo, env.jwtSecret);
@@ -68,6 +73,10 @@ export async function createApp() {
   const getInventoryItemByIdUseCase = new GetInventoryItemByIdUseCase(inventoryItemRepo);
   const getInventoryItemByInventoryNumberUseCase = new GetInventoryItemByInventoryNumberUseCase(inventoryItemRepo);
   const getInventoryItemBySerialNumberUseCase = new GetInventoryItemBySerialNumberUseCase(inventoryItemRepo);
+
+  // Inventory Category use-cases
+  const createInventoryCategoryUseCase = new CreateInventoryCategoryUseCase(inventoryCategoryRepo);
+  const getInventoryCategoryTreeUseCase = new GetInventoryCategoryTreeUseCase(inventoryCategoryRepo);
 
   // Controllers
   const authController = new AuthController(
@@ -100,11 +109,17 @@ export async function createApp() {
     getInventoryItemBySerialNumberUseCase
   );
 
+  const inventoryCategoryController = new InventoryCategoryController(
+    createInventoryCategoryUseCase,
+    getInventoryCategoryTreeUseCase
+  );
+
   const app = createExpressApp({
     authController,
     appUserController,
     customerController,
     inventoryItemController,
+    inventoryCategoryController,
     jwtSecret: env.jwtSecret
   });
 

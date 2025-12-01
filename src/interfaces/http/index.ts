@@ -11,6 +11,8 @@ import { createCustomerRouter } from './route/customer/customerRoute';
 import { CustomerController } from './controller/customer/CustomerController';
 import { InventoryItemController } from './controller/inventory/InventoryItemController';
 import { createInventoryItemRouter } from './route/inventory/inventoryItemRoutes';
+import { createInventoryCategoryRouter } from './route/inventory/inventoryCategoryRoutes';
+import { InventoryCategoryController } from './controller/inventory/InventoryCategoryController';
 
 export function createExpressApp(
   deps: {
@@ -19,6 +21,7 @@ export function createExpressApp(
     jwtSecret: string;
     customerController: CustomerController;
     inventoryItemController: InventoryItemController;
+    inventoryCategoryController: InventoryCategoryController;
   }
 ) {
   const app = express();
@@ -31,6 +34,7 @@ export function createExpressApp(
   app.use('/api/app-users', createAppUserRouter(deps.appUserController, deps.jwtSecret));
   app.use('/api/customer', createCustomerRouter(deps.customerController, deps.jwtSecret));
   app.use('/api/inventory-items', createInventoryItemRouter(deps.inventoryItemController, deps.jwtSecret));
+  app.use('/api/category', createInventoryCategoryRouter(deps.inventoryCategoryController, deps.jwtSecret));
 
 
   app.use(errorMiddleware);
