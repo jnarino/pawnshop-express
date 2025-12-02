@@ -1,7 +1,9 @@
-import { Pool } from 'pg';
+import { Pool, PoolClient } from 'pg';
 import { loadSql } from '../../db/sqlLoader';
 import { InventoryItemRepository } from '../../../domains/inventory/InventoryItemRepository';
 import { InventoryItem } from '../../../domains/inventory/InventoryItem';
+
+type DbClient = Pool | PoolClient;
 
 const SQL_CREATE = loadSql('commands', 'inventory/inventory_item_create');
 const SQL_UPDATE = loadSql('commands', 'inventory/inventory_item_update');
@@ -51,10 +53,10 @@ function mapRowToInventoryItem(row: any): InventoryItem {
 }
 
 export class PgInventoryItemRepository implements InventoryItemRepository {
-    constructor(private readonly pool: Pool) { }
+    constructor(private readonly db: DbClient) { }
 
     async create(item: InventoryItem): Promise<InventoryItem> {
-        const result = await this.pool.query(SQL_CREATE, [
+        const result = await this.db.query(SQL_CREATE, [
             item.id,
             item.categoryId,
             item.status,
@@ -86,7 +88,7 @@ export class PgInventoryItemRepository implements InventoryItemRepository {
     }
 
     async update(item: InventoryItem): Promise<InventoryItem> {
-        const result = await this.pool.query(SQL_UPDATE, [
+        const result = await this.db.query(SQL_UPDATE, [
             item.id,
             item.categoryId,
             item.status,
@@ -114,7 +116,6 @@ export class PgInventoryItemRepository implements InventoryItemRepository {
         ]);
 
         if (result.rows.length === 0) {
-            // Let calling use case handle NotFound via an explicit check before calling update
             return Promise.reject(new Error('Inventory item not found for update'));
         }
 
@@ -122,11 +123,11 @@ export class PgInventoryItemRepository implements InventoryItemRepository {
     }
 
     async delete(id: string): Promise<void> {
-        await this.pool.query(SQL_DELETE, [id]);
+        await this.db.query(SQL_DELETE, [id]);
     }
 
     async findById(id: string): Promise<InventoryItem | null> {
-        const result = await this.pool.query(SQL_FIND_BY_ID, [id]);
+        const result = await this.db.query(SQL_FIND_BY_ID, [id]);
         if (result.rows.length === 0) return null;
         return mapRowToInventoryItem(result.rows[0]);
     }
@@ -134,7 +135,7 @@ export class PgInventoryItemRepository implements InventoryItemRepository {
     async findByInventoryNumber(
         inventoryNumber: string
     ): Promise<InventoryItem | null> {
-        const result = await this.pool.query(SQL_FIND_BY_INVENTORY_NUMBER, [
+        const result = await this.db.query(SQL_FIND_BY_INVENTORY_NUMBER, [
             inventoryNumber
         ]);
         if (result.rows.length === 0) return null;
@@ -144,7 +145,7 @@ export class PgInventoryItemRepository implements InventoryItemRepository {
     async findBySerialNumber(
         serialNumber: string
     ): Promise<InventoryItem | null> {
-        const result = await this.pool.query(SQL_FIND_BY_SERIAL_NUMBER, [
+        const result = await this.db.query(SQL_FIND_BY_SERIAL_NUMBER, [
             serialNumber
         ]);
         if (result.rows.length === 0) return null;

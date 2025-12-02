@@ -32,6 +32,14 @@ import { PgInventoryCategoryRepository } from './infrastructure/persistence/inve
 import { CreateInventoryCategoryUseCase } from './application/use-case/inventory/command/CreateInventoryCategoryUseCase';
 import { GetInventoryCategoryTreeUseCase } from './application/use-case/inventory/query/GetInventoryCategoryTreeUseCase';
 import { InventoryCategoryController } from './interfaces/http/controller/inventory/InventoryCategoryController';
+import { PgPawnTicketRepository } from './infrastructure/persistence/pawnTicket/PgPawnTicketRepository';
+import { PgPawnTicketUnitOfWork } from './infrastructure/db/PgPawnTicketUnitOfWork';
+import { CreatePawnTicketWithItemsUseCase } from './application/use-case/pawnTicket/command/CreatePawnTicketWithItemsUseCase';
+import { CreatePawnTicketUseCase } from './application/use-case/pawnTicket/command/CreatePawnTicketUseCase';
+import { ListActivePawnTicketsByCustomerUseCase } from './application/use-case/pawnTicket/query/ListActivePawnTicketsByCustomerUseCase';
+import { ListPawnTicketsByControlNumberUseCase } from './application/use-case/pawnTicket/query/ListPawnTicketsByControlNumberUseCase';
+import { PawnTicketController } from './interfaces/http/controller/pawnTicket/PawnTicketController';
+import { ListPawnTicketsByCustomerUseCase } from './application/use-case/pawnTicket/query/ListPawnTicketsByCustomerUseCase';
 
 
 
@@ -44,9 +52,12 @@ export async function createApp() {
   const customerRepo = new PgCustomerRepository(pool);
   const inventoryItemRepo = new PgInventoryItemRepository(pool);
   const inventoryCategoryRepo = new PgInventoryCategoryRepository(pool);
+  const pawnTicketRepo = new PgPawnTicketRepository(pool);
+  const pawnTicketUnitOfWork = new PgPawnTicketUnitOfWork(pool);
 
   // Services
   const authService = new AuthService(appUserRepo, sessionRepo, env.jwtSecret);
+
 
   // Auth use-cases
   const loginUseCase = new LoginUseCase(authService);
@@ -77,6 +88,21 @@ export async function createApp() {
   // Inventory Category use-cases
   const createInventoryCategoryUseCase = new CreateInventoryCategoryUseCase(inventoryCategoryRepo);
   const getInventoryCategoryTreeUseCase = new GetInventoryCategoryTreeUseCase(inventoryCategoryRepo);
+
+  // Pawn Ticket use-cases  
+  const createPawnTicketWithItemsUseCase = new CreatePawnTicketWithItemsUseCase(
+    pawnTicketUnitOfWork
+  );
+  const listPawnTicketsByControlNumberUseCase = new ListPawnTicketsByControlNumberUseCase(
+    pawnTicketRepo
+  );
+  const listActivePawnTicketsByCustomerUseCase = new ListActivePawnTicketsByCustomerUseCase(
+    pawnTicketRepo
+  );
+  const listPawnTicketsByCustomerUseCase = new ListPawnTicketsByCustomerUseCase(
+    pawnTicketRepo
+  );
+
 
   // Controllers
   const authController = new AuthController(
@@ -114,12 +140,20 @@ export async function createApp() {
     getInventoryCategoryTreeUseCase
   );
 
+  const pawnTicketController = new PawnTicketController(    
+    createPawnTicketWithItemsUseCase,
+    listPawnTicketsByControlNumberUseCase,
+    listPawnTicketsByCustomerUseCase,
+    listActivePawnTicketsByCustomerUseCase
+  );
+
   const app = createExpressApp({
     authController,
     appUserController,
     customerController,
     inventoryItemController,
     inventoryCategoryController,
+    pawnTicketController,
     jwtSecret: env.jwtSecret
   });
 

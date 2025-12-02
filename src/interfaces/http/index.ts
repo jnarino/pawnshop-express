@@ -13,6 +13,7 @@ import { InventoryItemController } from './controller/inventory/InventoryItemCon
 import { createInventoryItemRouter } from './route/inventory/inventoryItemRoutes';
 import { createInventoryCategoryRouter } from './route/inventory/inventoryCategoryRoutes';
 import { InventoryCategoryController } from './controller/inventory/InventoryCategoryController';
+import { PawnTicketController } from './controller/pawnTicket/PawnTicketController';
 
 export function createExpressApp(
   deps: {
@@ -22,6 +23,7 @@ export function createExpressApp(
     customerController: CustomerController;
     inventoryItemController: InventoryItemController;
     inventoryCategoryController: InventoryCategoryController;
+    pawnTicketController: PawnTicketController;
   }
 ) {
   const app = express();
