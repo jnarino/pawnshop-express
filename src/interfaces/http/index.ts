@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import { json } from 'express';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from '../../config/swagger.config';
 import { AuthController } from './controller/auth/AuthController';
 import { AppUserController } from './controller/appUser/AppUserController';
 import { createAuthRouter } from './route/auth/authRoute';
@@ -33,6 +35,7 @@ export function createExpressApp(
   app.use(json());
 
   app.use('/health', healthRouter);
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   app.use('/api/auth', createAuthRouter(deps.authController));
   app.use('/api/app-users', createAppUserRouter(deps.appUserController, deps.jwtSecret));
   app.use('/api/customer', createCustomerRouter(deps.customerController, deps.jwtSecret));
