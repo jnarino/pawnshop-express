@@ -15,6 +15,8 @@ import { createInventoryCategoryRouter } from './route/inventory/inventoryCatego
 import { InventoryCategoryController } from './controller/inventory/InventoryCategoryController';
 import { PawnTicketController } from './controller/pawnTicket/PawnTicketController';
 import { createPawnTicketRouter } from './route/pawnTicket/pawnTicketRoute';
+import { StoreTransactionController } from './controller/storeTransaction/StoreTransactionController';
+import { createStoreTransactionRouter } from './route/storeTransaction/storeTransactionRoute';
 
 export function createExpressApp(
   deps: {
@@ -25,6 +27,7 @@ export function createExpressApp(
     inventoryItemController: InventoryItemController;
     inventoryCategoryController: InventoryCategoryController;
     pawnTicketController: PawnTicketController;
+    storeTransactionController: StoreTransactionController;
   }
 ) {
   const app = express();
@@ -39,7 +42,7 @@ export function createExpressApp(
   app.use('/api/inventory-items', createInventoryItemRouter(deps.inventoryItemController, deps.jwtSecret));
   app.use('/api/category', createInventoryCategoryRouter(deps.inventoryCategoryController, deps.jwtSecret));
   app.use('/api/pawn-ticket', createPawnTicketRouter(deps.pawnTicketController, deps.jwtSecret));
-
+  app.use('/api/store-transaction', createStoreTransactionRouter(deps.storeTransactionController, deps.jwtSecret));
 
   app.use(errorMiddleware);
 

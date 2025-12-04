@@ -1,7 +1,7 @@
 // tests/integration/authRoutes.test.ts
 import request from 'supertest';
-import { createApp } from '../../src/container';
-import { pool } from '../../src/infrastructure/db';
+import { createApp } from '../../../src/container';
+import { pool } from '../../../src/infrastructure/db';
 
 afterAll(async () => {
   await pool.end();
