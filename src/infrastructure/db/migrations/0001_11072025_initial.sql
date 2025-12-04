@@ -104,26 +104,6 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
------------------------
--- COLORS (master data)
------------------------
-CREATE TABLE IF NOT EXISTS color_group (
-  code TEXT PRIMARY KEY,          -- 'GENERIC_ITEM','FIREARM','JEWELRY_METAL_TONE','JEWELRY_STONE_COLOR','PERSON_HAIR','PERSON_EYE'
-  name TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS color (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  group_code TEXT NOT NULL REFERENCES color_group(code) ON DELETE RESTRICT,
-  slug TEXT NOT NULL,             -- e.g., 'YELLOW','WHITE','BLACK'
-  name TEXT NOT NULL,             -- display label
-  hex TEXT,                       -- optional swatch (#RRGGBB)
-  legacy_code TEXT,               -- optional short legacy/print code
-  sort_order INT NOT NULL DEFAULT 0,
-  active BOOLEAN NOT NULL DEFAULT TRUE,
-  UNIQUE (group_code, slug)
-);
-CREATE INDEX IF NOT EXISTS idx_color_group ON color(group_code);
 
 -----------------------
 -- Customer
@@ -147,8 +127,8 @@ CREATE TABLE IF NOT EXISTS customer (
   phone_number        TEXT,
   height              TEXT,
   weight              TEXT,
-  hair_color_id       UUID REFERENCES color(id) ON DELETE SET NULL,
-  eye_color_id        UUID REFERENCES color(id) ON DELETE SET NULL,
+  hair_color          TEXT,
+  eye_color           TEXT,
   race                TEXT,
   sex                 TEXT,
   marks               TEXT,
@@ -264,6 +244,33 @@ VALUES
   ('V', NULL, 130)
 ON CONFLICT DO NOTHING;
 
+------------------------------------
+-- Item Attributes: Types & Values
+------------------------------------
+
+-----------------------------
+-- Inventory: Attributes
+-----------------------------
+CREATE TABLE IF NOT EXISTS item_attribute_type (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    name text NOT NULL UNIQUE,
+    description text,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS item_attribute_value (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    attribute_type_id uuid NOT NULL REFERENCES item_attribute_type(id) ON DELETE CASCADE,
+    value text NOT NULL,
+    sort_order integer DEFAULT 0,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    UNIQUE(attribute_type_id, value)
+);
+
+CREATE INDEX IF NOT EXISTS idx_item_attribute_value_type ON item_attribute_value(attribute_type_id);
+
 -----------------------------
 -- Inventory: inventory_item
 -----------------------------
@@ -276,7 +283,7 @@ CREATE TABLE IF NOT EXISTS inventory_item (
   brand TEXT,
   model TEXT,
   serial_number TEXT,
-  color_id UUID REFERENCES color(id) ON DELETE SET NULL,
+  -- color now stored in item attributes JSONB
   item_condition TEXT,
 
   quantity INTEGER NOT NULL DEFAULT 1 CHECK (quantity > 0),
@@ -289,15 +296,17 @@ CREATE TABLE IF NOT EXISTS inventory_item (
   owner_mark TEXT,
   item_description TEXT,
 
-  -- JSON payload for guns/jewelry extras from Composite3/4
+  -- New fields
+  bin_location TEXT,
+  storage_fee NUMERIC(12,2) DEFAULT 0,
   extra JSONB NOT NULL DEFAULT '{}'::jsonb,
   attributes JSONB NOT NULL DEFAULT '{}'::jsonb,
 
   -- Legacy linkages
-  legacy_inventory_number TEXT,       -- INVNUM
-  legacy_item_guid TEXT,              -- Items_ID
-  legacy_category_description TEXT,   -- Composite
-  legacy_brand_color_description TEXT,-- Composit2
+  legacy_inventory_number TEXT,
+  legacy_item_guid TEXT,
+  legacy_category_description TEXT,
+  legacy_brand_color_description TEXT,
 
   inventory_number TEXT UNIQUE,
 
@@ -758,7 +767,7 @@ CREATE TABLE IF NOT EXISTS item_attribute_option (
   label TEXT NOT NULL,                            -- human label
   print_code TEXT,                                -- exact code printed on ticket
   legacy_code TEXT,                               -- alt/import code
-  color_id UUID REFERENCES color(id) ON DELETE SET NULL, -- optional swatch binding
+  -- color now stored in item attributes JSONB -- optional swatch binding
   sort_order INT NOT NULL DEFAULT 0,
   active BOOLEAN NOT NULL DEFAULT TRUE,
   UNIQUE (attribute_id, key)

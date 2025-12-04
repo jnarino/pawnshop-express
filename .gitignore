@@ -26,3 +26,13 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Auto-generated database files and migration artifacts
+migration/backup-to-sql-server/data/
+migration/sql-server-to-postgresql/*.json
+migration/sql-server-to-postgresql/.env
+migration/sql-server-to-postgresql/*.log
+migration/backup-to-sql-server/backup/*.dat
+migration/backup-to-sql-server/backup/POLICE.EXP
+migration/backup-to-sql-server/backup/*.zip
+
