@@ -15,6 +15,9 @@ from migrate_inventory import migrate_inventory
 from seed_pawn_types import seed_pawn_types
 from migrate_pawn import migrate_pawn_tickets
 from migrate_gunlog import migrate_gunlog
+from migrate_sales import migrate_sales
+from migrate_layaway import migrate_layaway
+from migrate_pawn_payments import migrate_pawn_payments
 
 def run_migration():
     start_total = time.time()
@@ -48,6 +51,14 @@ def run_migration():
     # Phase 4: Pawn Tickets
     print("\n🎫 PHASE 4: Pawn Tickets")
     migrate_pawn_tickets()
+
+    # Phase 4.5: Sales, Layaway, Pawn Payments
+    print("\n💰 PHASE 4.5: Sales & Transactions")
+    migrate_sales()
+    print("\n🗓 PHASE 4.6: Layaway")
+    migrate_layaway()
+    print("\n💸 PHASE 4.7: Pawn Payments")
+    migrate_pawn_payments()
     
     # Phase 5: Gun Log
     print("\n🔫 PHASE 5: Gun Log")

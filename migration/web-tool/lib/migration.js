@@ -43,6 +43,7 @@ async function runPythonScript(scriptName, args = [], env = 'prod') {
             '-e', 'POSTGRES_HOST=host.docker.internal',
             '-e', 'SQLSERVER_HOST=host.docker.internal',
             '-v', `${path.resolve(__dirname, '../../../.env')}:/migration/.env:ro`,
+            '-v', `${MIGRATION_DIR}:/migration`,
             imageName,
             'python3', scriptName, ...args
         ];

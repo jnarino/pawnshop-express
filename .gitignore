@@ -47,3 +47,9 @@ migration/backup-to-sql-server/backup/*.dat
 migration/backup-to-sql-server/backup/POLICE.EXP
 migration/backup-to-sql-server/backup/*.zip
 
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
