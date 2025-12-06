@@ -44,8 +44,13 @@ def clean_database():
         sys.exit(1)
 
 if __name__ == "__main__":
-    response = input("⚠️  This will DELETE ALL DATA in the database. Continue? (yes/no): ")
-    if response.lower() == 'yes':
-        clean_database()
-    else:
-        print("Cancelled.")
+    # Check for auto-confirm via environment variable (for non-interactive mode)
+    auto_confirm = os.getenv('AUTO_CONFIRM', 'false').lower() == 'true'
+    
+    if not auto_confirm:
+        response = input("⚠️  This will DELETE ALL DATA in the database. Continue? (yes/no): ")
+        if response.lower() != 'yes':
+            print("❌ Aborted.")
+            sys.exit(1)
+    
+    clean_database()

@@ -9,8 +9,15 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from dotenv import load_dotenv
 
-# Load .env from project root
-dotenv_path = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
+# Load .env - check Docker location first, then project root
+docker_env_path = '/migration/.env'
+project_env_path = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
+
+if os.path.exists(docker_env_path):
+    dotenv_path = docker_env_path
+else:
+    dotenv_path = project_env_path
+
 load_dotenv(dotenv_path)
 
 # Database Connection Configurations
