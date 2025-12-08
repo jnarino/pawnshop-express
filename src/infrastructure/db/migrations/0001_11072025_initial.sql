@@ -88,23 +88,6 @@ CREATE TABLE IF NOT EXISTS app_user_session (
 CREATE INDEX IF NOT EXISTS app_user_session_user_idx ON app_user_session(user_id);
 CREATE INDEX IF NOT EXISTS app_user_session_refresh_hash_idx ON app_user_session(refresh_token_hash);
 
--- Seed / ensure admin user (idempotent)
-DO $$
-DECLARE
-  v_user_id uuid;
-BEGIN
-  INSERT INTO app_user (username, password_hash, first_name, last_name, is_active, role_id)
-  VALUES (
-    'admin',
-    '$argon2id$v=19$m=65536,t=3,p=4$M25b0jlKV2fUz63IPD/zNQ$kqMJmEsyt7Fi5i4FraXLpKeijpME2cKQQ3DyTck+/W0',
-    'System','Admin', TRUE, 1
-  )
-  ON CONFLICT (username) DO UPDATE SET is_active = TRUE, role_id = 1
-  RETURNING id INTO v_user_id;
-END
-$$ LANGUAGE plpgsql;
-
-
 -----------------------
 -- Customer
 -----------------------
