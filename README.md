@@ -43,13 +43,28 @@ Running
 
    npm install
 
-2. Copy .env.example to .env and configure DATABASE_URL and JWT_SECRET:
 
-   cp .env.example .env
+2. Copy .env.example to .env (optional, as dev/prod scripts use specific env files) or configure your own.
 
-3. Run in dev mode (runs migrations on startup):
+3. **Running the Application**:
 
-   npm run dev
+   - **Development** (Port 3001, `.env.development`):
+     ```bash
+     npm run dev
+     ```
+
+   - **Production** (Port 3000, `.env.production`):
+     ```bash
+     npm run prod
+     ```
+
+4. **Migration & Setup Tool**:
+   To set up the database, run migrations, or create an admin user via the UI:
+
+   ```bash
+   sh migration/web-tool/start-ui.sh
+   ```
+
 
 Endpoints
 ---------
